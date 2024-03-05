@@ -46,6 +46,7 @@ type Resolver struct {
 	main                  []dnsClient
 	fallback              []dnsClient
 	fallbackDomainFilters []fallbackDomainFilter
+	whitelistIPFilters    []fallbackIPFilter
 	fallbackIPFilters     []fallbackIPFilter
 	group                 singleflight.Group
 	cache                 dnsCache
@@ -121,6 +122,11 @@ func (r *Resolver) LookupIPv6(ctx context.Context, host string) ([]netip.Addr, e
 }
 
 func (r *Resolver) shouldIPFallback(ip netip.Addr) bool {
+	for _, filter := range r.whitelistIPFilters {
+		if filter.Match(ip) {
+			return false
+		}
+	}
 	for _, filter := range r.fallbackIPFilters {
 		if filter.Match(ip) {
 			return true
@@ -397,7 +403,7 @@ func (ns NameServer) Equal(ns2 NameServer) bool {
 
 type FallbackFilter struct {
 	GeoIP     bool
-	GeoIPCode string
+	GeoIPCode []string
 	IPCIDR    []netip.Prefix
 	Domain    []string
 	GeoSite   []router.DomainMatcher
@@ -541,14 +547,18 @@ func NewResolver(config Config) *Resolver {
 	}
 
 	fallbackIPFilters := []fallbackIPFilter{}
+	whitelistIPFilters := []fallbackIPFilter{}
 	if config.FallbackFilter.GeoIP {
-		fallbackIPFilters = append(fallbackIPFilters, &geoipFilter{
-			code: config.FallbackFilter.GeoIPCode,
-		})
+		for _, geoCode := range config.FallbackFilter.GeoIPCode {
+			whitelistIPFilters = append(whitelistIPFilters, &geoipFilter{
+				code: geoCode,
+			})
+		}
 	}
 	for _, ipnet := range config.FallbackFilter.IPCIDR {
 		fallbackIPFilters = append(fallbackIPFilters, &ipnetFilter{ipnet: ipnet})
 	}
+	r.whitelistIPFilters = whitelistIPFilters
 	r.fallbackIPFilters = fallbackIPFilters
 
 	fallbackDomainFilters := []fallbackDomainFilter{}
