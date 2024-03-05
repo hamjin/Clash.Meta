@@ -130,7 +130,7 @@ type DNS struct {
 // FallbackFilter config
 type FallbackFilter struct {
 	GeoIP     bool                   `yaml:"geoip"`
-	GeoIPCode string                 `yaml:"geoip-code"`
+	GeoIPCode []string               `yaml:"geoip-code"`
 	IPCIDR    []netip.Prefix         `yaml:"ipcidr"`
 	Domain    []string               `yaml:"domain"`
 	GeoSite   []router.DomainMatcher `yaml:"geosite"`
@@ -224,7 +224,7 @@ type RawDNS struct {
 
 type RawFallbackFilter struct {
 	GeoIP     bool     `yaml:"geoip" json:"geoip"`
-	GeoIPCode string   `yaml:"geoip-code" json:"geoip-code"`
+	GeoIPCode []string `yaml:"geoip-code" json:"geoip-code"`
 	IPCIDR    []string `yaml:"ipcidr" json:"ipcidr"`
 	Domain    []string `yaml:"domain" json:"domain"`
 	GeoSite   []string `yaml:"geosite" json:"geosite"`
@@ -464,7 +464,7 @@ func UnmarshalRawConfig(buf []byte) (*RawConfig, error) {
 			FakeIPRange:  "198.18.0.1/16",
 			FallbackFilter: RawFallbackFilter{
 				GeoIP:     true,
-				GeoIPCode: "CN",
+				GeoIPCode: []string{"CN", "private"},
 				IPCIDR:    []string{},
 				GeoSite:   []string{},
 			},

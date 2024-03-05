@@ -20,28 +20,31 @@ type geoipFilter struct {
 	code string
 }
 
-var geoIPMatcher *router.GeoIPMatcher
+var geoIPMatcherMap map[string]*router.GeoIPMatcher
 
 func (gf *geoipFilter) Match(ip netip.Addr) bool {
-	if !C.GeodataMode {
-		codes := mmdb.IPInstance().LookupCode(ip.AsSlice())
-		for _, code := range codes {
-			if !strings.EqualFold(code, gf.code) && !ip.IsPrivate() {
-				return true
+	if C.GeodataMode {
+		geoIPMatcher, ok := geoIPMatcherMap[gf.code]
+		if !ok {
+			geoIPMatcher, _, err := geodata.LoadGeoIPMatcher(gf.code)
+			if err != nil {
+				log.Errorln("[GeoIPFilter] LoadGeoIPMatcher error: %s", err.Error())
+				return false
 			}
+
+			geoIPMatcherMap[gf.code] = geoIPMatcher
 		}
-		return false
+
+		return geoIPMatcher.Match(ip)
 	}
 
-	if geoIPMatcher == nil {
-		var err error
-		geoIPMatcher, _, err = geodata.LoadGeoIPMatcher("CN")
-		if err != nil {
-			log.Errorln("[GeoIPFilter] LoadGeoIPMatcher error: %s", err.Error())
+	codes := mmdb.IPInstance().LookupCode(ip.AsSlice())
+	for _, code := range codes {
+		if !strings.EqualFold(code, gf.code) && !ip.IsPrivate() {
 			return false
 		}
 	}
-	return !geoIPMatcher.Match(ip)
+	return true
 }
 
 type ipnetFilter struct {
