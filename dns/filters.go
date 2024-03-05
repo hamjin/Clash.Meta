@@ -17,25 +17,22 @@ type fallbackIPFilter interface {
 }
 
 type geoipFilter struct {
-	code string
+	code         string
+	geoIPMatcher *router.GeoIPMatcher
 }
-
-var geoIPMatcherMap map[string]*router.GeoIPMatcher
 
 func (gf *geoipFilter) Match(ip netip.Addr) bool {
 	if C.GeodataMode {
-		geoIPMatcher, ok := geoIPMatcherMap[gf.code]
-		if !ok {
+		if gf.geoIPMatcher == nil {
 			geoIPMatcher, _, err := geodata.LoadGeoIPMatcher(gf.code)
 			if err != nil {
 				log.Errorln("[GeoIPFilter] LoadGeoIPMatcher error: %s", err.Error())
 				return false
 			}
-
-			geoIPMatcherMap[gf.code] = geoIPMatcher
+			gf.geoIPMatcher = geoIPMatcher
 		}
 
-		return geoIPMatcher.Match(ip)
+		return gf.geoIPMatcher.Match(ip)
 	}
 
 	codes := mmdb.IPInstance().LookupCode(ip.AsSlice())
