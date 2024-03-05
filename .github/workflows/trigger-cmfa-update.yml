@@ -7,12 +7,12 @@ on:
       - "README.md"
       - ".github/ISSUE_TEMPLATE/**"
     branches:
-      - main
+      - next
     tags:
       - "v*"
   pull_request_target:
     branches:
-      - main
+      - next
       
 jobs:
   # Send "core-updated" to MetaCubeX/ClashMetaForAndroid to trigger update-dependencies

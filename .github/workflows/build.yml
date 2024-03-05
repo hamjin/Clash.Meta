@@ -7,12 +7,12 @@ on:
       - "README.md"
       - ".github/ISSUE_TEMPLATE/**"
     branches:
-      - main
+      - next
     tags:
       - "v*"
   pull_request_target:
     branches:
-      - main
+      - next
       
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -109,8 +109,8 @@ jobs:
         echo "/usr/local/go/bin" >> $GITHUB_PATH
 
     - name: Set variables
-      if: ${{github.ref_name=='main'}}
-      run: echo "VERSION=main-$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+      if: ${{github.ref_name=='next'}}
+      run: echo "VERSION=next-$(git rev-parse --short HEAD)" >> $GITHUB_ENV
       shell: bash
 
     - name: Set variables
