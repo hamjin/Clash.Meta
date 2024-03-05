@@ -42,8 +42,8 @@ var (
 	backupExeName  string // 备份文件名
 	updateExeName  string // 更新后的可执行文件
 
-	baseURL       string = "https://github.com/hamjin/Clash.Meta/releases/download/Prerelease-main/mihomo"
-	versionURL    string = "https://github.com/hamjin/Clash.Meta/releases/download/Prerelease-main/version.txt"
+	baseURL       string = "https://github.com/hamjin/Clash.Meta/releases/download/Prerelease-next/mihomo"
+	versionURL    string = "https://github.com/hamjin/Clash.Meta/releases/download/Prerelease-next/version.txt"
 	packageURL    string
 	latestVersion string
 )
