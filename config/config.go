@@ -128,11 +128,12 @@ type DNS struct {
 
 // FallbackFilter config
 type FallbackFilter struct {
-	GeoIP     bool                   `yaml:"geoip"`
-	GeoIPCode []string               `yaml:"geoip-code"`
-	IPCIDR    []netip.Prefix         `yaml:"ipcidr"`
-	Domain    []string               `yaml:"domain"`
-	GeoSite   []router.DomainMatcher `yaml:"geosite"`
+	GeoIP       bool                   `yaml:"geoip"`
+	GeoIPCode   []string               `yaml:"geoip-code"`
+	WhiteIPCIDR []netip.Prefix         `yaml:"white-ipcidr"`
+	IPCIDR      []netip.Prefix         `yaml:"ipcidr"`
+	Domain      []string               `yaml:"domain"`
+	GeoSite     []router.DomainMatcher `yaml:"geosite"`
 }
 
 // Profile config
@@ -222,11 +223,12 @@ type RawDNS struct {
 }
 
 type RawFallbackFilter struct {
-	GeoIP     bool     `yaml:"geoip" json:"geoip"`
-	GeoIPCode []string `yaml:"geoip-code" json:"geoip-code"`
-	IPCIDR    []string `yaml:"ipcidr" json:"ipcidr"`
-	Domain    []string `yaml:"domain" json:"domain"`
-	GeoSite   []string `yaml:"geosite" json:"geosite"`
+	GeoIP       bool     `yaml:"geoip" json:"geoip"`
+	GeoIPCode   []string `yaml:"geoip-code" json:"geoip-code"`
+	WhiteIPCIDR []string `yaml:"white-ipcidr" json:"white-ipcidr"`
+	IPCIDR      []string `yaml:"ipcidr" json:"ipcidr"`
+	Domain      []string `yaml:"domain" json:"domain"`
+	GeoSite     []string `yaml:"geosite" json:"geosite"`
 }
 
 type RawClashForAndroid struct {
@@ -460,10 +462,11 @@ func UnmarshalRawConfig(buf []byte) (*RawConfig, error) {
 			EnhancedMode: C.DNSMapping,
 			FakeIPRange:  "198.18.0.1/16",
 			FallbackFilter: RawFallbackFilter{
-				GeoIP:     true,
-				GeoIPCode: []string{"CN", "private"},
-				IPCIDR:    []string{},
-				GeoSite:   []string{},
+				GeoIP:       true,
+				GeoIPCode:   []string{"CN", "private"},
+				WhiteIPCIDR: []string{},
+				IPCIDR:      []string{},
+				GeoSite:     []string{},
 			},
 			DefaultNameserver: []string{
 				"114.114.114.114",
