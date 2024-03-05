@@ -402,11 +402,12 @@ func (ns NameServer) Equal(ns2 NameServer) bool {
 }
 
 type FallbackFilter struct {
-	GeoIP     bool
-	GeoIPCode []string
-	IPCIDR    []netip.Prefix
-	Domain    []string
-	GeoSite   []router.DomainMatcher
+	GeoIP       bool
+	GeoIPCode   []string
+	WhiteIPCIDR []netip.Prefix
+	IPCIDR      []netip.Prefix
+	Domain      []string
+	GeoSite     []router.DomainMatcher
 }
 
 type Config struct {
@@ -546,7 +547,6 @@ func NewResolver(config Config) *Resolver {
 		insertPolicy(nil)
 	}
 
-	fallbackIPFilters := []fallbackIPFilter{}
 	whitelistIPFilters := []fallbackIPFilter{}
 	if config.FallbackFilter.GeoIP {
 		for _, geoCode := range config.FallbackFilter.GeoIPCode {
@@ -555,10 +555,16 @@ func NewResolver(config Config) *Resolver {
 			})
 		}
 	}
+
+	for _, ipnet := range config.FallbackFilter.WhiteIPCIDR {
+		whitelistIPFilters = append(whitelistIPFilters, &ipnetFilter{ipnet: ipnet})
+	}
+	r.whitelistIPFilters = whitelistIPFilters
+
+	fallbackIPFilters := []fallbackIPFilter{}
 	for _, ipnet := range config.FallbackFilter.IPCIDR {
 		fallbackIPFilters = append(fallbackIPFilters, &ipnetFilter{ipnet: ipnet})
 	}
-	r.whitelistIPFilters = whitelistIPFilters
 	r.fallbackIPFilters = fallbackIPFilters
 
 	fallbackDomainFilters := []fallbackDomainFilter{}
